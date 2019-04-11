@@ -51,17 +51,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         when (v.id) {
             R.id.bak -> {
                 if (imgnum != 0) {
-                    Log.d("imglist", "引く前 $imgnum")
-                    var imgnum = imgnum - 1
-                    Log.d("imglist", "引い後 $imgnum")
-                    // 初期画像を表示
+                    imgnum = imgnum - 1
                     this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
                     // ログに出力
                     Log.d("imglist", "前に戻る $imgnum")
                 } else {
-                    Log.d("imglist", "トータル要素数 $imgtotal")
                     this.imageView.setImageURI(Uri.parse(imaglist[imgtotal]))
-                    return
+                    imgnum = imgtotal
                 }
             }
         }
@@ -73,13 +69,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
         when (v.id) {
             R.id.fwd -> {
-                Log.d("imglist", "足す前 $imgnum")
-                var imgnum = imgnum + 1
-                Log.d("imglist", "足した後 $imgnum")
-                // 初期画像を表示
-                this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
-                // ログに出力
-                Log.d("imglist", "先に進む $imgnum")
+                if (imgnum != imgtotal) {
+                    imgnum = imgnum + 1
+                    this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
+                    // ログに出力
+                    Log.d("imglist", "先に進む $imgnum")
+                } else {
+                    this.imageView.setImageURI(Uri.parse(imaglist[0]))
+                    imgnum = 0
+                }
+
             }
         }
     }
@@ -116,7 +115,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 Log.d("imglist", "$imaglist")
             } while (cursor.moveToNext())
             // 配列の数をカウント
-            val imgtotal = imaglist.count()
+            imgtotal = imaglist.count()-1
             // 初期画像を表示
             this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
             // ログに出力
