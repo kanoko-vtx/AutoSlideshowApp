@@ -10,16 +10,18 @@ import android.provider.MediaStore
 import android.content.ContentUris
 import android.database.Cursor
 import android.net.Uri
+import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private val PERMISSIONS_REQUEST_CODE = 100
-
     // 画像Uri配列
     private val imaglist = mutableListOf<String>()
+    // 配列の数
+    private var imgtotal:Int = 0
     // 初期表示画像id
-    private val imgnum:Int = 0
+    private var imgnum:Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +40,47 @@ class MainActivity : AppCompatActivity() {
             // Android 5系以下の場合
         } else {
             getContentsInfo()
+        }
+
+        bak.setOnClickListener(this)
+        ctrl.setOnClickListener(this)
+        fwd.setOnClickListener(this)
+    }
+
+    override fun onClick(v: View) {
+        when (v.id) {
+            R.id.bak -> {
+                if (imgnum != 0) {
+                    Log.d("imglist", "引く前 $imgnum")
+                    var imgnum = imgnum - 1
+                    Log.d("imglist", "引い後 $imgnum")
+                    // 初期画像を表示
+                    this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
+                    // ログに出力
+                    Log.d("imglist", "前に戻る $imgnum")
+                } else {
+                    Log.d("imglist", "トータル要素数 $imgtotal")
+                    this.imageView.setImageURI(Uri.parse(imaglist[imgtotal]))
+                    return
+                }
+            }
+        }
+        when (v.id) {
+            R.id.ctrl -> {
+                // ログに出力
+                Log.d("imglist", "再生・停止")
+            }
+        }
+        when (v.id) {
+            R.id.fwd -> {
+                Log.d("imglist", "足す前 $imgnum")
+                var imgnum = imgnum + 1
+                Log.d("imglist", "足した後 $imgnum")
+                // 初期画像を表示
+                this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
+                // ログに出力
+                Log.d("imglist", "先に進む $imgnum")
+            }
         }
     }
 
@@ -72,10 +115,13 @@ class MainActivity : AppCompatActivity() {
                 // ログに出力
                 Log.d("imglist", "$imaglist")
             } while (cursor.moveToNext())
+            // 配列の数をカウント
+            val imgtotal = imaglist.count()
             // 初期画像を表示
             this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
             // ログに出力
-            Log.d("imglist", "$imgnum")
+            Log.d("imglist", "要素数 $imgtotal")
+            Log.d("imglist", "初期表示 $imgnum")
             cursor.close()
         }
     }
