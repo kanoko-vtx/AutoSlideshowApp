@@ -16,6 +16,11 @@ class MainActivity : AppCompatActivity() {
 
     private val PERMISSIONS_REQUEST_CODE = 100
 
+    // 画像Uri配列
+    private val imaglist = mutableListOf<String>()
+    // 初期表示画像id
+    private val imgnum:Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -57,21 +62,20 @@ class MainActivity : AppCompatActivity() {
         )
 
         if (cursor.moveToFirst()) {
-
-            val imaglist = mutableListOf<String>()
-
             do {
                 // indexからIDを取得し、そのIDから画像のURIを取得する
                 val fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID)
                 val id = cursor.getLong(fieldIndex)
                 val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
-
+                // リストに追加
                 imaglist.add(imageUri.toString())
-
-                Log.d("list", "$imaglist")
-//            this.imageView.setImageURI(imageUri)
+                // ログに出力
+                Log.d("imglist", "$imaglist")
             } while (cursor.moveToNext())
-            this.imageView.setImageURI(Uri.parse(imaglist[1]))
+            // 初期画像を表示
+            this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
+            // ログに出力
+            Log.d("imglist", "$imgnum")
             cursor.close()
         }
     }
