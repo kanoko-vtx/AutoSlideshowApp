@@ -95,22 +95,32 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                         mTimer!!.schedule(0, 2000) {
                             Log.d("imglist", "再生中")
 
-                            if (imgnum != imgtotal) {
-                                imgnum = imgnum + 1
-                                mHandler.post {
-                                    imageView.setImageURI(Uri.parse(imaglist[imgnum]))
-                                    status.text = (imgnum+1).toString() + " / " + imaglist.count().toString()
+                                if (imgnum != imgtotal) {
+                                    imgnum = imgnum + 1
+                                    mHandler.post {
+                                        imageView.setImageURI(Uri.parse(imaglist[imgnum]))
+                                        status.text = (imgnum+1).toString() + " / " + imaglist.count().toString()
+                                    }
+                                    // ログに出力
+                                    Log.d("imglist", "先に進む $imgnum / 合計 $imgtotal")
+                                } else {
+                                    mHandler.post{
+                                        try {
+                                            imageView.setImageURI(Uri.parse(imaglist[0]))
+                                        status.text = "1 / " + imaglist.count().toString()
+                                        } catch (e: Exception) {
+                                            val Snackbar =
+                                                Snackbar.make(rootlayout, "画像がないかパーミッションがありません", Snackbar.LENGTH_LONG)
+                                            Snackbar.show()
+                                            ctrltext.text = "再生"
+                                            bak.setClickable(true)
+                                            fwd.setClickable(true)
+                                            mTimer!!.cancel()
+                                        }
+                                    }
+                                    imgnum = 0
+                                    Log.d("imglist", "ループ　先に進む $imgnum / 合計 $imgtotal")
                                 }
-                                // ログに出力
-                                Log.d("imglist", "先に進む $imgnum / 合計 $imgtotal")
-                            } else {
-                                mHandler.post{
-                                    imageView.setImageURI(Uri.parse(imaglist[0]))
-                                    status.text = "1 / " + imaglist.count().toString()
-                                }
-                                imgnum = 0
-                                Log.d("imglist", "ループ　先に進む $imgnum / 合計 $imgtotal")
-                            }
                         }
                     } else {
                         ctrltext.text = "再生"
@@ -137,7 +147,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         } catch (e: Exception) {
-            Log.d("imglist", "要素数 $imgtotal")
             val Snackbar = Snackbar.make(rootlayout, "画像がないかパーミッションがありません", Snackbar.LENGTH_LONG)
             Snackbar.show()
         }
