@@ -11,6 +11,7 @@ import android.content.ContentUris
 import android.database.Cursor
 import android.net.Uri
 import android.view.View
+import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -65,6 +66,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             R.id.ctrl -> {
                 // ログに出力
                 Log.d("imglist", "再生・停止")
+                val ctrltext : TextView = findViewById(R.id.ctrl)
+                if ( ctrltext.text == "再生" ) {
+                    ctrltext.text = "停止"
+                    bak.setClickable(false)
+                    fwd.setClickable(false)
+                } else {
+                    ctrltext.text = "再生"
+                    bak.setOnClickListener(this)
+                    fwd.setOnClickListener(this)
+                }
             }
         }
         when (v.id) {
