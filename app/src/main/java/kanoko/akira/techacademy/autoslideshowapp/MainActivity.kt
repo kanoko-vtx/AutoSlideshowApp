@@ -30,9 +30,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     // 初期表示画像id
     private var imgnum:Int = 0
     // タイマー用変数
-    private var mTimerSec = 0.0
     private var mTimer: Timer? = null
-    private var mHandler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -161,6 +159,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 Log.d("imglist", "$imaglist")
             } while (cursor.moveToNext())
             // 配列の数をカウント
+            status.text = (imgnum+1).toString() + " / " + imaglist.count().toString()
             imgtotal = imaglist.count()-1
             // 初期画像を表示
             this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
