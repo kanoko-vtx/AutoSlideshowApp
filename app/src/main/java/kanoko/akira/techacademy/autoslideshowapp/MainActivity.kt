@@ -8,17 +8,15 @@ import android.os.Build
 import android.util.Log
 import android.provider.MediaStore
 import android.content.ContentUris
-import android.database.Cursor
 import android.net.Uri
 import android.os.Handler
+import android.support.design.widget.Snackbar
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
+import java.lang.Exception
 import java.util.*
 import kotlin.concurrent.schedule
-import kotlin.concurrent.timer
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -31,6 +29,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var imgnum:Int = 0
     // タイマー用変数
     private var mTimer: Timer? = null
+    private var mHandler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +47,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             // Android 5系以下の場合
         } else {
-            getContentsInfo()
+            try {
+                getContentsInfo()
+            } catch (e: Exception) {
+
+            }
         }
 
         bak.setOnClickListener(this)
@@ -57,73 +60,86 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View) {
-        when (v.id) {
-            R.id.bak -> {
-                if (imgnum != 0) {
-                    imgnum = imgnum - 1
-                    this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
-                    // ログに出力
-                    Log.d("imglist", "前に戻る $imgnum")
-                } else {
-                    this.imageView.setImageURI(Uri.parse(imaglist[imgtotal]))
-                    imgnum = imgtotal
-                    Log.d("imglist", "前に戻る $imgnum")
+
+        try{
+            when (v.id) {
+                R.id.bak -> {
+                    if (imgnum != 0) {
+                        imgnum = imgnum - 1
+                        this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
+                        status.text = (imgnum+1).toString() + " / " + imaglist.count().toString()
+                        // ログに出力
+                        Log.d("imglist", "前に戻る $imgnum")
+                    } else {
+                        this.imageView.setImageURI(Uri.parse(imaglist[imgtotal]))
+                        imgnum = imgtotal
+                        status.text = imaglist.count().toString() + " / " + imaglist.count().toString()
+                        Log.d("imglist", "前に戻る $imgnum")
+                    }
                 }
             }
-        }
-        when (v.id) {
-            R.id.ctrl -> {
-                // ログに出力
-                Log.d("imglist", "再生・停止")
-                val ctrltext : TextView = findViewById(R.id.ctrl)
-                if ( ctrltext.text == "再生" ) {
-                    ctrltext.text = "停止"
-                    bak.setClickable(false)
-                    fwd.setClickable(false)
+            when (v.id) {
+                R.id.ctrl -> {
+                    // ログに出力
+                    Log.d("imglist", "再生・停止")
+                    val ctrltext : TextView = findViewById(R.id.ctrl)
+                    if ( ctrltext.text == "再生" ) {
+                        ctrltext.text = "停止"
+                        bak.setClickable(false)
+                        fwd.setClickable(false)
 
-                    // タイマーの作成
-                    mTimer = Timer()
+                        // タイマーの作成
+                        mTimer = Timer()
 
-                    // タイマーの始動
-                    mTimer!!.schedule(0, 2000) {
-                        Log.d("imglist", "再生中")
-                        try {
+                        // タイマーの始動
+                        mTimer!!.schedule(0, 2000) {
+                            Log.d("imglist", "再生中")
+
                             if (imgnum != imgtotal) {
                                 imgnum = imgnum + 1
-                                imageView.setImageURI(Uri.parse(imaglist[imgnum]))
+                                mHandler.post {
+                                    imageView.setImageURI(Uri.parse(imaglist[imgnum]))
+                                    status.text = (imgnum+1).toString() + " / " + imaglist.count().toString()
+                                }
                                 // ログに出力
                                 Log.d("imglist", "先に進む $imgnum / 合計 $imgtotal")
                             } else {
-                                imageView.setImageURI(Uri.parse(imaglist[0]))
+                                mHandler.post{
+                                    imageView.setImageURI(Uri.parse(imaglist[0]))
+                                    status.text = "1 / " + imaglist.count().toString()
+                                }
                                 imgnum = 0
                                 Log.d("imglist", "ループ　先に進む $imgnum / 合計 $imgtotal")
                             }
-                        } catch (e: Exception ) {
-
                         }
-
+                    } else {
+                        ctrltext.text = "再生"
+                        bak.setClickable(true)
+                        fwd.setClickable(true)
+                        mTimer!!.cancel()
                     }
-                } else {
-                    ctrltext.text = "再生"
-                    bak.setOnClickListener(this)
-                    fwd.setOnClickListener(this)
-                    mTimer!!.cancel()
                 }
             }
-        }
-        when (v.id) {
-            R.id.fwd -> {
-                if (imgnum != imgtotal) {
-                    imgnum = imgnum + 1
-                    this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
-                    // ログに出力
-                    Log.d("imglist", "先に進む $imgnum")
-                } else {
-                    this.imageView.setImageURI(Uri.parse(imaglist[0]))
-                    imgnum = 0
-                    Log.d("imglist", "先に進む $imgnum")
+            when (v.id) {
+                R.id.fwd -> {
+                    if (imgnum != imgtotal) {
+                        imgnum = imgnum + 1
+                        this.imageView.setImageURI(Uri.parse(imaglist[imgnum]))
+                        status.text = (imgnum+1).toString() + " / " + imaglist.count().toString()
+                        // ログに出力
+                        Log.d("imglist", "先に進む $imgnum")
+                    } else {
+                        this.imageView.setImageURI(Uri.parse(imaglist[0]))
+                        imgnum = 0
+                        status.text = "1 / " + imaglist.count().toString()
+                        Log.d("imglist", "先に進む $imgnum")
+                    }
                 }
             }
+        } catch (e: Exception) {
+            Log.d("imglist", "要素数 $imgtotal")
+            val Snackbar = Snackbar.make(rootlayout, "画像がないかパーミッションがありません", Snackbar.LENGTH_LONG)
+            Snackbar.show()
         }
     }
 
