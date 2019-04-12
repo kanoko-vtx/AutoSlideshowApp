@@ -10,9 +10,15 @@ import android.provider.MediaStore
 import android.content.ContentUris
 import android.database.Cursor
 import android.net.Uri
+import android.os.Handler
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.view.*
+import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.concurrent.timer
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -23,6 +29,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var imgtotal:Int = 0
     // 初期表示画像id
     private var imgnum:Int = 0
+    // タイマー用変数
+    private var mTimerSec = 0.0
+    private var mTimer: Timer? = null
+    private var mHandler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +69,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 } else {
                     this.imageView.setImageURI(Uri.parse(imaglist[imgtotal]))
                     imgnum = imgtotal
+                    Log.d("imglist", "前に戻る $imgnum")
                 }
             }
         }
@@ -71,10 +82,34 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     ctrltext.text = "停止"
                     bak.setClickable(false)
                     fwd.setClickable(false)
+
+                    // タイマーの作成
+                    mTimer = Timer()
+
+                    // タイマーの始動
+                    mTimer!!.schedule(0, 2000) {
+                        Log.d("imglist", "再生中")
+                        try {
+                            if (imgnum != imgtotal) {
+                                imgnum = imgnum + 1
+                                imageView.setImageURI(Uri.parse(imaglist[imgnum]))
+                                // ログに出力
+                                Log.d("imglist", "先に進む $imgnum / 合計 $imgtotal")
+                            } else {
+                                imageView.setImageURI(Uri.parse(imaglist[0]))
+                                imgnum = 0
+                                Log.d("imglist", "ループ　先に進む $imgnum / 合計 $imgtotal")
+                            }
+                        } catch (e: Exception ) {
+
+                        }
+
+                    }
                 } else {
                     ctrltext.text = "再生"
                     bak.setOnClickListener(this)
                     fwd.setOnClickListener(this)
+                    mTimer!!.cancel()
                 }
             }
         }
@@ -88,8 +123,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 } else {
                     this.imageView.setImageURI(Uri.parse(imaglist[0]))
                     imgnum = 0
+                    Log.d("imglist", "先に進む $imgnum")
                 }
-
             }
         }
     }
